@@ -1,0 +1,56 @@
+[project]
+name = "song_highlights"
+version = "0.0.1"
+description = "song_highlights"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.14"
+dependencies = [
+    "langchain>=1.3.18",
+    "langchain-openai>=1.6.0",
+    "pydantic>=2.13.5",
+    "python-dotenv>=1.1.0",
+]
+
+[project.optional-dependencies]
+dev = ["ruff", "pyright", "pytest", "pytest-xdist"]
+
+[project.scripts]
+# Define os comandos de console. A chave ('song_highlights') é o comando.
+# O valor aponta para 'nome_do_pacote.nome_do_modulo:nome_da_funcao'.
+# Ex: 'song_highlights.main:run' -> src/song_highlights/main.py (e a função run lá dentro).
+# Lembre-se de sincronizar o nome do pacote com 'known-first-party' do Ruff.
+song_highlights = "song_highlights.main:main"
+
+# ============================
+# Testes (Pytest)
+# ============================
+[tool.pytest.ini_options]
+addopts = "-s --color=yes --tb=short"
+# Adiciona 'src' ao path do Python durante os testes. Isso permite que
+# os testes em `tests/` importem os módulos de `src/` sem erros.
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+
+# ============================
+# Build e Setuptools
+# ============================
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+]
+
+[tool.setuptools.packages.find]
+# Informa ao setuptools para encontrar os pacotes dentro da pasta 'src'.
+# Essencial para a estrutura de layout com 'src/'.
+where = ["src"]
+
+[tool.setuptools]
+# Mapeia o diretório raiz de pacotes para 'src'.
+package-dir = { "" = "src" }

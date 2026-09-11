@@ -1,0 +1,8 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "song_highlights": "./src/song_highlights/graph/factory.py:graph"
+  },
+  "env": ".env",
+  "image_distro": "wolfi"
+}
