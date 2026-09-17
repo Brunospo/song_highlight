@@ -21,6 +21,11 @@ class ProviderConfig:
 
 
 @dataclass
+class MemoryConfig:
+    db_uri: str
+
+
+@dataclass
 class ModelConfig:
     api_key: str
     http_referer: str
@@ -28,6 +33,8 @@ class ModelConfig:
     provider: ProviderConfig
     models: list[str]
     temperature: float
+    memory: MemoryConfig
+    max_messages_to_summary: int
 
 
 # Instanciando a configuração
@@ -35,7 +42,7 @@ config = ModelConfig(
     api_key=api_key,
     http_referer="",
     x_title="IA Devs - Prompt Chaining Article Generator",
-    models=["nvidia/nemotron-3-ultra-550b-a55b:free"],
+    models=["nvidia/nemotron-3-super-120b-a12b:free"],
     provider=ProviderConfig(
         sort=ProviderSortConfig(
             by="throughput",
@@ -43,4 +50,8 @@ config = ModelConfig(
         )
     ),
     temperature=0.7,
+    memory=MemoryConfig(
+        db_uri="postgresql://postgres:mysecretpassword@localhost:5432/song_recommender"
+    ),
+    max_messages_to_summary=2,
 )

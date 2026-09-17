@@ -4,6 +4,7 @@ import sys
 from langchain_core.messages import HumanMessage
 
 from song_highlights.graph.factory import build_graph
+from song_highlights.services.preferences_service import PreferencesService
 
 
 def parse_args() -> dict[str, str]:
@@ -29,42 +30,26 @@ async def async_main():
 
         graph_data = await build_graph()
         graph = graph_data["graph"]
-        memory_service = graph_data["memory_service"]
+        preferences_service: PreferencesService = graph_data["preferences_service"]
 
         args = parse_args()
         user_id = args.get("user_id")
-        thread_id = (
-            f"user-{user_id}"
-            if user_id
-            else f"user-{int(asyncio.get_running_loop().time() * 1000)}"
-        )
+        actual_user_id = user_id or "anonymous"
+
+        thread_id = f"{actual_user_id}-{int(asyncio.get_running_loop().time() * 1000)}"
 
         config = {
             "configurable": {"thread_id": thread_id},
-            "context": {"user_id": thread_id},
+            "context": {"user_id": actual_user_id},
         }
 
-        if user_id:
-            print(f"👤 Usuário: {user_id}")
+        print(f"👤 Usuário: {actual_user_id}")
         print(f"📝 ID da Sessão: {thread_id}\n")
 
-        namespace = ["memories", thread_id]
-        user_context = None
+        user_context = await preferences_service.get_basic_info(actual_user_id)
 
-        store = (
-            memory_service.get("store") if isinstance(memory_service, dict) else None
-        )
-
-        if store:
-            search_fn = store.get("search")
-            if search_fn:
-                existing_memories = await search_fn(namespace, limit=10)
-
-                if existing_memories:
-                    user_context = "\n".join(
-                        [m.value.get("data", "") for m in existing_memories]
-                    )
-                    print(f"📚 Informações do usuário carregadas:\n{user_context}\n")
+        if user_context:
+            print(f"📚 Informações do usuário carregadas:\n{user_context}\n")
 
         try:
             initial_message = (
