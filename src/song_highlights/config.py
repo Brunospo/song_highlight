@@ -42,7 +42,7 @@ config = ModelConfig(
     api_key=api_key,
     http_referer="",
     x_title="IA Devs - Prompt Chaining Article Generator",
-    models=["nvidia/nemotron-3-super-120b-a12b:free"],
+    models=["nex-agi/nex-n2.5-mini:free"],
     provider=ProviderConfig(
         sort=ProviderSortConfig(
             by="throughput",
@@ -53,5 +53,5 @@ config = ModelConfig(
     memory=MemoryConfig(
         db_uri="postgresql://postgres:mysecretpassword@localhost:5432/song_recommender"
     ),
-    max_messages_to_summary=2,
+    max_messages_to_summary=6,
 )

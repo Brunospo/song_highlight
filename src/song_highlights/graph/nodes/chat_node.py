@@ -1,6 +1,7 @@
 from langchain.messages import AIMessage, HumanMessage
 from langchain_core.runnables import RunnableConfig
 
+from song_highlights.config import config as m_config
 from song_highlights.graph.graph_state import GraphState
 from song_highlights.prompts.v1.chat_response import (
     ChatResponse,
@@ -20,9 +21,12 @@ def create_chat_node(
             or state["user_id"]
             or "unknown"
         )
-        user_context = state[
-            "user_context"
-        ] or await preferences_service.get_basic_info(user_id)
+        user_context = state.get(
+            "user_context", {}
+        ) or await preferences_service.get_basic_info(user_id)
+        # user_context = state[
+        #     "user_context"
+        # ] or await preferences_service.get_basic_info(user_id)
         system_prompt = get_system_prompt(user_context)
 
         conversation_history = "\n".join(
@@ -48,12 +52,15 @@ def create_chat_node(
 
         response = result["data"]
 
+        total_message = len(state["messages"])
+        needs_summarization = total_message >= m_config.max_messages_to_summary
+
         return {
             "messages": [AIMessage(response.message)],
             "extracted_preferences": response.preferences
             if response.should_save_preferences
             else None,
-            "needs_summarization": False,
+            "needs_summarization": needs_summarization,
         }
 
     return chat_node

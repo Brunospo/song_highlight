@@ -26,7 +26,9 @@ def build_chat_graph(
     workflow.add_node(
         "save_preferences", create_save_preferences_node(preferences_service)
     )
-    workflow.add_node("summarize", create_summarization_node(llm_client))
+    workflow.add_node(
+        "summarize", create_summarization_node(llm_client, preferences_service)
+    )
 
     workflow.add_edge(START, "chat")
     workflow.add_conditional_edges(

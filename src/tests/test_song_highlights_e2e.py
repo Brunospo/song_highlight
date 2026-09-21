@@ -67,7 +67,7 @@ async def test_deve_extrair_e_salvar_preferencias_do_usuario(graph_setup):
 @pytest.mark.skip(reason="not implemented")
 @pytest.mark.asyncio
 async def test_deve_manter_multiplas_trocas_e_fazer_sumarizacao(graph_setup):
-    graph, memory_service = graph_setup
+    graph, preferences_service = graph_setup
     test_thread_id = f"test-user-{int(time.time() * 1000)}"
     config = {
         "configurable": {"thread_id": test_thread_id},
@@ -97,25 +97,25 @@ async def test_deve_manter_multiplas_trocas_e_fazer_sumarizacao(graph_setup):
     await asyncio.sleep(0.5)
 
     namespace = ["memories", test_thread_id]
-    saved_memories = await memory_service["store"]["search"](namespace, limit=10)
+    saved_memories = await preferences_service["store"]["search"](namespace, limit=10)
 
     assert len(saved_memories) > 0, "Memórias devem existir"
 
-    memories_text = " ".join(
+    saved_memories = " ".join(
         [m.get("value", {}).get("data", "").lower() for m in saved_memories]
     )
-    assert "sarah" in memories_text, "Nome deve estar salvo"
+    assert "sarah" in saved_memories, "Nome deve estar salvo"
     assert (
-        "indie" in memories_text
-        or "eletrônica" in memories_text
-        or "electronic" in memories_text
+        "indie" in saved_memories
+        or "eletrônica" in saved_memories
+        or "electronic" in saved_memories
     ), "Gêneros devem estar salvos"
 
 
-@pytest.mark.skip(reason="not implemented")
+# @pytest.mark.skip(reason="not implemented")
 @pytest.mark.asyncio
 async def test_deve_recuperar_contexto_em_nova_sessao(graph_setup):
-    graph, memory_service = graph_setup
+    graph, preferences_service = graph_setup
     test_thread_id = f"test-user-{int(time.time() * 1000)}"
     config = {
         "configurable": {"thread_id": test_thread_id},
@@ -136,17 +136,16 @@ async def test_deve_recuperar_contexto_em_nova_sessao(graph_setup):
 
     await asyncio.sleep(0.5)
 
-    namespace = ["memories", test_thread_id]
-    saved_memories = await memory_service["store"]["search"](namespace, limit=10)
+    saved_memories = await preferences_service.get_basic_info(test_thread_id)
+    print("=-=-=-=-=-=-=--=-=-=-=-=-=-=-")
+    print(saved_memories)
+    print("=-=-=-=-=-=-=--=-=-=-=-=-=-=-")
 
     assert len(saved_memories) > 0, "Deve recuperar informações básicas"
 
-    memories_text = " ".join(
-        [m.get("value", {}).get("data", "") for m in saved_memories]
-    )
-    assert "Marcus" in memories_text, "Deve incluir nome"
-    assert "28" in memories_text, "Deve incluir idade"
-    assert "jazz" in memories_text.lower() or "blues" in memories_text.lower(), (
+    assert "Marcus" in saved_memories, "Deve incluir nome"
+    assert "28" in saved_memories, "Deve incluir idade"
+    assert "jazz" in saved_memories.lower() or "blues" in saved_memories.lower(), (
         "Deve incluir gêneros"
     )
 
